@@ -5,14 +5,12 @@ import joblib
 import numpy as np
 import os
 
-# ── App setup ─────────────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DIST_DIR = os.path.join(BASE_DIR, "dist")          # built React files
 
 app = Flask(__name__, static_folder=DIST_DIR, static_url_path="/")
 CORS(app)                                           # allow all origins
 
-# ── Load model artifacts ──────────────────────────────────────────────────────
 model            = joblib.load(os.path.join(BASE_DIR, "LogisticRegression_heart.pkl"))
 scaler           = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 expected_columns = joblib.load(os.path.join(BASE_DIR, "columns.pkl"))
@@ -20,9 +18,6 @@ expected_columns = joblib.load(os.path.join(BASE_DIR, "columns.pkl"))
 print("✅ Model loaded:", type(model).__name__)
 print("✅ Columns     :", list(expected_columns))
 
-# ── Preprocessing constants ───────────────────────────────────────────────────
-# Mean and std of numeric columns from the original UCI training data (n=918)
-# The model was trained on pre-normalised numerics, so we must replicate that.
 NUMERIC_MEAN = {
     "Age":         53.51,
     "RestingBP":  132.40,
@@ -40,33 +35,8 @@ NUMERIC_STD = {
     "Oldpeak":      1.067,
 }
 
-# ── Feature encoding ──────────────────────────────────────────────────────────
 def encode_input(data: dict) -> np.ndarray:
-    """
-    Convert raw form data from the frontend into the 15-feature vector
-    the Logistic Regression model expects.
-
-    Preprocessing steps:
-      1. Normalise numeric fields using UCI training set mean/std
-      2. One-hot encode categorical fields
-      3. Order columns exactly as in columns.pkl
-      4. Apply StandardScaler (scaler.pkl)
     
-    Frontend key   →  Model column
-    ─────────────────────────────────────────────────────────
-    age            →  Age              (normalised)
-    restingBP      →  RestingBP        (normalised)
-    cholesterol    →  Cholesterol      (normalised)
-    fastingBS      →  FastingBS        (0/1, normalised)
-    maxHR          →  MaxHR            (normalised)
-    oldpeak        →  Oldpeak          (normalised)
-    sex            →  Sex_M            (M=1, F=0)
-    chestPainType  →  ChestPainType_ATA / _NAP / _TA   (ASY = all 0s)
-    restingECG     →  RestingECG_Normal / _ST           (LVH = all 0s)
-    exerciseAngina →  ExerciseAngina_Y (Y=1, N=0)
-    stSlope        →  ST_Slope_Flat / _Up               (Down = all 0s)
-    """
-
     # Step 1 — normalise numeric fields
     raw = {
         "Age":         float(data["age"]),
@@ -111,8 +81,6 @@ def encode_input(data: dict) -> np.ndarray:
     # Step 4 — apply the saved StandardScaler
     return scaler.transform(X)
 
-
-# ── Validation helper ─────────────────────────────────────────────────────────
 REQUIRED_FIELDS = [
     "age", "restingBP", "cholesterol", "fastingBS",
     "maxHR", "oldpeak", "sex", "chestPainType",
@@ -123,8 +91,6 @@ def validate(data: dict):
     missing = [f for f in REQUIRED_FIELDS if data.get(f) is None or data.get(f) == ""]
     return missing
 
-
-# ── API route ─────────────────────────────────────────────────────────────────
 @app.route("/api/predict", methods=["POST"])
 def predict():
     data = request.get_json()
@@ -153,10 +119,6 @@ def predict():
         return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
 
 
-# ── Serve React frontend ──────────────────────────────────────────────────────
-# These two routes make Flask serve the built React app for every non-API URL.
-# This means you can visit http://localhost:5000 and see the frontend.
-
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_react(path):
@@ -176,8 +138,6 @@ def serve_react(path):
     # Otherwise serve index.html (React Router handles the rest)
     return send_from_directory(DIST_DIR, "index.html")
 
-
-# ── Run ───────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print(f"\n🫀 CardioAI running at http://localhost:{port}\n")
