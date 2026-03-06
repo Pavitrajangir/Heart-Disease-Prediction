@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-// ── Form field definitions ────────────────────────────────────────────────────
 const NUMBER_FIELDS = [
   {
     key: "age",
@@ -120,14 +119,12 @@ const EMPTY_FORM = {
   stSlope: "",
 };
 
-// ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
-  // ── Validation ──────────────────────────────────────────────────────────────
   function validate() {
     const e = {};
     NUMBER_FIELDS.forEach(({ key, min, max }) => {
@@ -146,7 +143,6 @@ export default function App() {
     return e;
   }
 
-  // ── Submit ──────────────────────────────────────────────────────────────────
   async function handleSubmit() {
     const e = validate();
     if (Object.keys(e).length > 0) {
@@ -204,7 +200,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
-      {/* Header */}
       <header className="bg-white border-b border-blue-100 shadow-sm">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center gap-3">
           <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center shadow">
@@ -222,7 +217,6 @@ export default function App() {
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-10">
-        {/* Page title */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-blue-900 mb-3">
             Assess Your Cardiac Risk
