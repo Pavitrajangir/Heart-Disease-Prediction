@@ -1,19 +1,3 @@
-# =============================================================================
-#  app.py — CardioAI Flask Backend
-#  Handles: /api/predict  +  serves built React frontend from dist/
-#
-#  Folder structure expected:
-#  Backend/
-#  ├── app.py                          ← this file
-#  ├── requirements.txt
-#  ├── LogisticRegression_heart.pkl
-#  ├── scaler.pkl
-#  ├── columns.pkl
-#  └── dist/                           ← built React files (npm run build)
-#
-#  Local run  : python app.py
-#  Production : gunicorn app:app
-# =============================================================================
 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
